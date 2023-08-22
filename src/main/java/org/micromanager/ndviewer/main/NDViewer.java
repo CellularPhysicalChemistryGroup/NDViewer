@@ -53,7 +53,7 @@ public class NDViewer implements NDViewerAPI {
 
    public static String NO_CHANNEL = "NO_CHANNEL_PRESENT";
    public static String CHANNEL_AXIS = "channel";
-   private final GuiManager guiManager_;
+   protected GuiManager guiManager_;
 
    private DisplayCoalescentEDTRunnablePool edtRunnablePool_ =
          DisplayCoalescentEDTRunnablePool.create();
@@ -97,7 +97,7 @@ public class NDViewer implements NDViewerAPI {
          preferencesKey_ = "Default";
       }
       displayModel_ = new DisplayModel(this, dataSource_, getPreferences(), rgb);
-      guiManager_ = new GuiManager(this, acq_ !=null);
+      //guiManager_ = new GuiManager(this, acq_ !=null);
    }
 
    public void setReadTimeMetadataFunction(Function<JSONObject, Long> fn) {

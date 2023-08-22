@@ -24,6 +24,8 @@ public class GuiManager {
 
    private NDViewer display_;
 
+   public GuiManager() {};
+   
    public GuiManager(NDViewer ndViewer, boolean acquisition) {
       displayWindow_ = new DisplayWindow(ndViewer, !acquisition);
 

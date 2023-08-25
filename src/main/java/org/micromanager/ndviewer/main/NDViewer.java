@@ -1,5 +1,6 @@
 // Copyright (C) 2015-2017 Open Imaging, Inc.
 //           (C) 2015 Regents of the University of California
+//           (C) Joshua Riback, 2023, Baylor College of Medicine
 //
 // LICENSE:      This file is distributed under the BSD license.
 //               License text is included with the source distribution.
@@ -97,7 +98,7 @@ public class NDViewer implements NDViewerAPI {
          preferencesKey_ = "Default";
       }
       displayModel_ = new DisplayModel(this, dataSource_, getPreferences(), rgb);
-      //guiManager_ = new GuiManager(this, acq_ !=null);
+      guiManager_ = new GuiManager(this, acq_ !=null);
    }
 
    public void setReadTimeMetadataFunction(Function<JSONObject, Long> fn) {
@@ -483,6 +484,19 @@ public class NDViewer implements NDViewerAPI {
       guiManager_.readHistogramControlsStateFromGUI();
    }
 
+//  Methods added by @CellularPhysicalChemistryGroup - adds controls to the side of the histograms    
+    public void addChannelSideControls(String text) {
+        guiManager_.addChannelSideControls(text);
+    }
+    public void setChannelSideControlsSelection(String text, String channelName_, boolean selected) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    public double[] getChannelIntensityCorrections(String channelName_) {
+        return new double[]{0,1};
+    }   
+// 
+    
    /**
     * A coalescent runnable to avoid excessively frequent update of the data
     * coords range in the UI

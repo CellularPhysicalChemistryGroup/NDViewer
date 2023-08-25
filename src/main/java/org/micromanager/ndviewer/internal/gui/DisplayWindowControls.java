@@ -365,4 +365,10 @@ class DisplayWindowControls extends javax.swing.JPanel {
 
    // End of variables declaration//GEN-END:variables
 
+//  Method added by @CellularPhysicalChemistryGroup - adds controls to the side of the histograms
+//      for now should only be called once after all channels are added  
+    public void addChannelSideControls(String text) {
+        contrastPanel_.addChannelSideControls(text);
+    }
+//
 }

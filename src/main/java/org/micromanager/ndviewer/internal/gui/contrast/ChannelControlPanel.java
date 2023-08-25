@@ -4,9 +4,9 @@
 //SUBSYSTEM:     mmstudio
 //-----------------------------------------------------------------------------
 //
-// AUTHOR:       Henry Pinkard, henry.pinkard@gmail.com, & Arthur Edelstein, 2010
+// AUTHOR:       Henry Pinkard, henry.pinkard@gmail.com, & Arthur Edelstein, 2010 (University of California, San Francisco, 2012)
 //
-// COPYRIGHT:    University of California, San Francisco, 2012
+// AUTHOR:      Joshua Riback, 2023 (Baylor College of Medicine)
 //
 // LICENSE:      This file is distributed under the BSD license.
 //               License text is included with the source distribution.
@@ -28,7 +28,7 @@ import org.micromanager.ndviewer.internal.gui.contrast.HistogramPanel.CursorList
 import org.micromanager.ndviewer.main.NDViewer;
 
 /**
- * Draws one histogram of the Multi-Channel control panel
+ * Draws one histogram of the Multi-Channel control panel - All edits made for @CPCGTools are denoted as 
  *
  *
  */
@@ -57,6 +57,11 @@ class ChannelControlPanel extends JPanel implements CursorListener {
    private ContrastPanel contrastPanel_;
    private final String channelName_;
    private int pixelMin_, pixelMax_;
+   
+// Fields added in 2023 by @CellularPhysicalChemistryGroup for CPCGTools
+   private String histMinLabel_;
+   private double pixelMean_, pixelMeanSquared_;
+//
 
    public ChannelControlPanel(NDViewer disp,
            ContrastPanel contrastPanel, String name, Color color, int bitDepth) {
@@ -69,6 +74,7 @@ class ChannelControlPanel extends JPanel implements CursorListener {
       histMax_ = maxIntensity_ + 1;
       binSize_ = histMax_ / DisplaySettings.NUM_DISPLAY_HIST_BINS;
       histMaxLabel_ = "" + histMax_;
+      histMinLabel_ = "" + 0;//Added in 2023 by @CellularPhysicalChemistryGroup for CPCGTools
       initComponents();
       channelNameCheckbox_.setSelected(display_.getDisplaySettingsObject().isActive(channelName_));
       redraw();
@@ -209,6 +215,36 @@ class ChannelControlPanel extends JPanel implements CursorListener {
 
       controls_.setPreferredSize(controls_.getMinimumSize());
    }
+   
+//  Method added by @CellularPhysicalChemistryGroup - adds controls to the side of the histograms 
+    public void addChannelSideControls(String text/*"BK,FF,&Calib."*/){
+        javax.swing.JCheckBox newCheckbox = new javax.swing.JCheckBox();
+        newCheckbox.setText(text);
+        newCheckbox.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                display_.setChannelSideControlsSelection(text, channelName_, newCheckbox.isSelected());
+                display_.onContrastUpdated();
+                redraw();
+            }
+        });
+        
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        gbc.weightx = 1;
+        gbc.weighty = 1;
+        gbc.gridwidth = 5;
+        gbc.anchor = GridBagConstraints.LINE_START;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        controls_.add(newCheckbox, gbc);
+        
+        //Not sure if these are needed
+        controls_.setPreferredSize(controls_.getMinimumSize());
+        display_.onContrastUpdated();
+        redraw();
+    }
+//
 
    public String getChannelName() {
       return channelName_;
@@ -219,7 +255,11 @@ class ChannelControlPanel extends JPanel implements CursorListener {
       int contrastMax = display_.getDisplaySettingsObject().getContrastMax(channelName_);
       double gamma = display_.getDisplaySettingsObject().getContrastGamma(channelName_);
 
-      hp_.setCursorText(contrastMin + "", contrastMax + "");
+//  Change by @CellularPhysicalChemistryGroup so histogram is flexible.
+      double[] corrections = display_.getChannelIntensityCorrections(channelName_);     
+      hp_.setCursorText(convertIntensityToText(contrastMin,corrections[0],corrections[1]) + "", convertIntensityToText(contrastMax,corrections[0],corrections[1]) + "");
+//
+
       hp_.setCursors(contrastMin / binSize_, (contrastMax + 1) / binSize_, gamma);
       hp_.repaint();
    }
@@ -272,6 +312,13 @@ class ChannelControlPanel extends JPanel implements CursorListener {
          public void paint(Graphics g) {
             if (channelNameCheckbox_.isSelected()) {
                super.paint(g);
+               
+//  Change by @CellularPhysicalChemistryGroup so histogram is flexible.               
+               //For drawing min label - new for CPCG (since not zero. Should be in ChannelControlPanel!
+               g.setColor(UIManager.getColor("Label.foreground"));
+               g.setFont(new Font("Lucida Grande", 0, 10));
+               g.drawString(histMinLabel_, 8, 10);
+//
                //For drawing max label
                g.setColor(UIManager.getColor("Label.foreground"));
                g.setFont(new Font("Lucida Grande", 0, 10));
@@ -289,7 +336,8 @@ class ChannelControlPanel extends JPanel implements CursorListener {
       hp.addCursorListener(this);
       return hp;
    }
-
+   
+//  Change by @CellularPhysicalChemistryGroup so histogram is flexible.
    public void updateHistogram(int[] rawHistogram) {
       hp_.setVisible(true);
       //Draw histogram and stats
@@ -297,6 +345,9 @@ class ChannelControlPanel extends JPanel implements CursorListener {
       // Convert from full histogram to display histogram
       pixelMin_ = -1;
       pixelMax_ = 0;
+      pixelMean_ = 0;
+      pixelMeanSquared_ = 0;
+      int tot = 0;
       int binSize = rawHistogram.length == 256 ? 1 : (int) (Math.pow(2, bitDepth_ - 8));
       int numBins = (int) Math.min(rawHistogram.length / binSize, DisplaySettings.NUM_DISPLAY_HIST_BINS);
       int[] displayHistogram_ = new int[DisplaySettings.NUM_DISPLAY_HIST_BINS];
@@ -305,6 +356,12 @@ class ChannelControlPanel extends JPanel implements CursorListener {
          for (int j = 0; j < binSize; j++) {
             int rawHistIndex = (int) (i * binSize + j);
             int rawHistVal = rawHistogram[rawHistIndex];
+            pixelMean_+= ((double) rawHistIndex)*((double) rawHistVal);
+            pixelMeanSquared_+= ((double) rawHistIndex)*((double) rawHistIndex)*((double) rawHistVal);
+            if ((pixelMean_<0)||(pixelMeanSquared_<0)){
+                tot=1;
+            }
+            tot+=rawHistVal;
             displayHistogram_[i] += rawHistVal;
             if (rawHistVal > 0) {
                pixelMax_ = rawHistIndex;
@@ -317,15 +374,27 @@ class ChannelControlPanel extends JPanel implements CursorListener {
             displayHistogram_[i] = displayHistogram_[i] > 0 ? (int) (1000 * Math.log(displayHistogram_[i])) : 0;
          }
       }
-
+      pixelMean_=pixelMean_/tot;
+      pixelMeanSquared_=pixelMeanSquared_/tot;
       histogramData.setData(displayHistogram_);
       hp_.setData(histogramData);
       hp_.setAutoScale();
       hp_.repaint();
-      minMaxLabel_.setText("Min: " + pixelMin_ + "   " + "Max: " + pixelMax_);
+      
+      double[] corrections = display_.getChannelIntensityCorrections(channelName_);
+      minMaxLabel_.setText("Mean: " + convertIntensityToText((int) pixelMean_,corrections[0],corrections[1])+ "   " + "Std: " +convertIntensityToText((int) Math.sqrt(pixelMeanSquared_-pixelMean_*pixelMean_),0.0,corrections[1])); 
+      //minMaxLabel_.setText("Min: " + convertIntensityToText(pixelMin_,corrections[0],corrections[1]) + "   " + "Max: " + convertIntensityToText(pixelMax_,corrections[0],corrections[1]));
+      histMinLabel_ = String.valueOf(convertIntensityToText(0,corrections[0],corrections[1]));
+      histMaxLabel_ = String.valueOf(convertIntensityToText(rawHistogram.length-1,corrections[0],corrections[1]));
+
       redraw();
 
    }
+
+   private String convertIntensityToText(int val, double offset, double scale){
+       return String.format("%.2f", scale*val+offset);
+   }
+//
 
    public void contrastMaxInput(int max) {
       contrastPanel_.disableAutostretch();
@@ -362,18 +431,26 @@ class ChannelControlPanel extends JPanel implements CursorListener {
 
    }
 
+//  Change by @CellularPhysicalChemistryGroup - Josh does not like giving access to gamma. Will implement Fire color instead at somepoint soon. 
    @Override
    public void onGammaCurve(double gamma) {
-      if (gamma != 0) {
+      /*if (gamma != 0) {
          if (gamma > 0.9 & gamma < 1.1) {
             gamma = 1;
          }
          display_.getDisplaySettingsObject().setGamma(channelName_, gamma);
          display_.onContrastUpdated();
+      }*/
+      //No Gamma changes 
+      if (gamma!=1){
+        gamma = 1;
+        display_.getDisplaySettingsObject().setGamma(channelName_, gamma);
+        display_.onContrastUpdated();
       }
       redraw();
    }
-
+//
+   
    void updateActiveCheckbox(boolean active) {
       channelNameCheckbox_.setSelected(active);
       redraw();

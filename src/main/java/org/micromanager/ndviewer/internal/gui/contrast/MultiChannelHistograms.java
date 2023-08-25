@@ -172,4 +172,14 @@ final class MultiChannelHistograms extends JPanel {
    public List<String> getContrastControlKeys() {
       return new LinkedList<String>(ccpList_.keySet());
    }
+   
+//  Method added by @CellularPhysicalChemistryGroup - adds controls to the side of the histograms
+//      for now should only be called once after all channels are added  
+    public void addChannelSideControls(String text) {
+        for (ChannelControlPanel c : ccpList_.values()) {
+            c.addChannelSideControls(text);
+        }
+    }
+//
+   
 }

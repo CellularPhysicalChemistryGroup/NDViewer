@@ -152,7 +152,7 @@ public class DisplayWindow implements WindowListener {
    public void addContrastControlsIfNeeded(String channelName) {
       sideControls_.addContrastControlsIfNeeded(channelName);
    }
-
+   
    public void collapseOrExpandSideControls(boolean expand) {
       sideControls_.setVisible(expand);
       window_.revalidate();
@@ -326,4 +326,10 @@ public class DisplayWindow implements WindowListener {
       sideControls_.addControlPanel(panel);
    }
 
+//  Method added by @CellularPhysicalChemistryGroup - adds controls to the side of the histograms
+//      for now should only be called once after all channels are added  
+    public void addChannelSideControls(String text) {
+        sideControls_.addChannelSideControls(text);
+    }
+//
 }

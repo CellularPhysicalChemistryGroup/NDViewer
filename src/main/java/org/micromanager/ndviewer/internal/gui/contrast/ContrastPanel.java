@@ -336,5 +336,11 @@ public class ContrastPanel extends JPanel {
    public void readHistogramControlsStateFromGUI() {
       histograms_.readHistogramControlsStateFromGUI();
    }
-
+   
+//  Method added by @CellularPhysicalChemistryGroup - adds controls to the side of the histograms
+//      for now should only be called once after all channels are added  
+    public void addChannelSideControls(String text) {
+        histograms_.addChannelSideControls(text);
+    }
+//
 }

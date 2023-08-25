@@ -24,7 +24,7 @@ public class GuiManager {
 
    private NDViewer display_;
 
-   public GuiManager() {};
+   //public GuiManager() {};
    
    public GuiManager(NDViewer ndViewer, boolean acquisition) {
       displayWindow_ = new DisplayWindow(ndViewer, !acquisition);
@@ -184,4 +184,11 @@ public class GuiManager {
    public void updateGUIFromDisplaySettings() {
       displayWindow_.updateActiveChannelCheckboxes();
    }
+
+//  Method added by @CellularPhysicalChemistryGroup - adds controls to the side of the histograms
+//      for now should only be called once after all channels are added  
+    public void addChannelSideControls(String text) {
+        displayWindow_.addChannelSideControls(text);
+    }
+//
 }

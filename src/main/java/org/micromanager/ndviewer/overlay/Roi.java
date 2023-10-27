@@ -36,7 +36,7 @@ public class Roi extends Object implements Cloneable, java.io.Serializable {
    int activeHandle;
    int state;
    int modState = NO_MODS;
-   int cornerDiameter;
+   protected int cornerDiameter;
 
    public static Roi previousRoi;
    public static final BasicStroke onePixelWide = new BasicStroke(1);

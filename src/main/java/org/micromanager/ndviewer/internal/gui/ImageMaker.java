@@ -447,6 +447,11 @@ public class ImageMaker {
          }
          lut = makeLUT(display_.getDisplaySettingsObject().getColor(channelName_),
                  display_.getDisplaySettingsObject().getContrastGamma(channelName_));
+         //Edits to defalt to fire mode in not composite mode
+         if (!ds.isCompositeMode()){
+           lut = new FireColorModel().getFireLUT();     
+         }
+         //
          splitLUTRGB();
       }
 

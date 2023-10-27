@@ -142,8 +142,9 @@ class DisplayWindowControls extends javax.swing.JPanel {
       );
 
       Color niceBlue = new Color(0, 126, 255);
-      Color labelForeground = UIManager.getColor("Label.foreground");
+      Color labelForeground = Color.black;
 
+      // Get the default color of text
       tabbedPane_.addTab("Contrast", contrastPanelPanel_);
       tabbedPane_.setForegroundAt(0, niceBlue);
       tabbedPane_.addTab("Metadata", metadataPanel_);

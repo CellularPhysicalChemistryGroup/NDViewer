@@ -164,6 +164,9 @@ final class MultiChannelHistograms extends JPanel {
          for (String i : hists.keySet()) {
             ChannelControlPanel c = ccpList_.get(i);
             int[] hist = hists.get(i);
+            if (hist == null) {
+               continue; // not provided for this channel
+            }
             c.updateHistogram(hist);
          }
       }

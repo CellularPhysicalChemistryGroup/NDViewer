@@ -98,7 +98,7 @@ public class MetadataPanel extends javax.swing.JPanel {
 
 
       Color niceBlue = new Color(0, 126, 255);
-      Color labelForeground = UIManager.getColor("Label.foreground");
+      Color labelForeground = Color.black;
 
       acqImageTabbedPane_.addChangeListener(e -> {
          for (int i = 0; i < acqImageTabbedPane_.getTabCount(); i++) {

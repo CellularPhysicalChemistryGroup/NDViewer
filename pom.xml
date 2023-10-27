@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.micro-manager.ndviewer</groupId>
     <artifactId>NDViewer</artifactId>
-    <version>0.10.0</version>
+    <version>0.10.2</version>
     <packaging>jar</packaging>
     <name>NDViewer image viewer</name>
     <description>Java-based multidimensional image viewer</description>
